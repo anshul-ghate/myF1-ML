@@ -1,3 +1,7 @@
+import { Link } from "react-router-dom";
+import { CircleUser, Menu, Package2, Search } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -5,59 +9,100 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { CircleUser, CalendarDays } from 'lucide-react';
-import { ModeToggle } from '../mode-toggle';
-import RaceSchedule from '../dashboard/RaceSchedule';
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ModeToggle } from "../mode-toggle";
 
-export default function Header() {
+interface HeaderProps {
+  onSearch: (query: string) => void;
+}
+
+export default function Header({ onSearch }: HeaderProps) {
+  // For UI development, we'll assume a user is logged in.
+  // In a real app, this would be based on auth state.
+  const isLoggedIn = true; 
+
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
-      <div className="w-full flex-1">
-        {/* Can be used for a global search in the future */}
+    <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
+      <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
+        <Link
+          to="/"
+          className="flex items-center gap-2 text-lg font-semibold md:text-base"
+        >
+          <Package2 className="h-6 w-6" />
+          <span className="sr-only">F1 Analytics</span>
+        </Link>
+        <Link
+          to="/"
+          className="text-foreground transition-colors hover:text-foreground"
+        >
+          Dashboard
+        </Link>
+      </nav>
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="icon" className="shrink-0 md:hidden">
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle navigation menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left">
+          <nav className="grid gap-6 text-lg font-medium">
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-lg font-semibold"
+            >
+              <Package2 className="h-6 w-6" />
+              <span className="sr-only">F1 Analytics</span>
+            </Link>
+            <Link to="/" className="hover:text-foreground">
+              Dashboard
+            </Link>
+          </nav>
+        </SheetContent>
+      </Sheet>
+      <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
+        <form className="ml-auto flex-1 sm:flex-initial" onSubmit={(e) => { e.preventDefault(); onSearch(e.currentTarget.search.value); }}>
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              name="search"
+              placeholder="Search drivers or teams..."
+              className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+            />
+          </div>
+        </form>
+        <ModeToggle />
+        {isLoggedIn ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="icon" className="rounded-full">
+                <CircleUser className="h-5 w-5" />
+                <span className="sr-only">Toggle user menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild><Link to="/profile">Profile</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link to="/settings">Settings</Link></DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <div className="flex items-center gap-2">
+              <Button asChild variant="outline">
+                  <Link to="/login">Login</Link>
+              </Button>
+              <Button asChild>
+                  <Link to="/signup">Sign Up</Link>
+              </Button>
+          </div>
+        )}
       </div>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant="outline" size="icon">
-            <CalendarDays className="h-5 w-5" />
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[625px]">
-          <DialogHeader>
-            <DialogTitle>2024 Race Schedule</DialogTitle>
-            <DialogDescription>
-              The official calendar for the 2024 FIA Formula One World Championship.
-            </DialogDescription>
-          </DialogHeader>
-          <RaceSchedule />
-        </DialogContent>
-      </Dialog>
-      <ModeToggle />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="secondary" size="icon" className="rounded-full">
-            <CircleUser className="h-5 w-5" />
-            <span className="sr-only">Toggle user menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>Settings</DropdownMenuItem>
-          <DropdownMenuItem>Support</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>Logout</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </header>
   );
 }
