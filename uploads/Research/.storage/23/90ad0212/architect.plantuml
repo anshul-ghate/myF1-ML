@@ -1,0 +1,173 @@
+@startuml F1 Analytics System Architecture
+
+!define RECTANGLE class
+
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+package "Client Layer" {
+    [Web App\n(React/TS)] as WebApp
+    [Mobile App\n(React Native)] as MobileApp
+    [API Client\n(Python SDK)] as APIClient
+    [Admin Panel] as AdminPanel
+}
+
+package "CDN & Edge" {
+    [CloudFront CDN] as CDN
+    [Static Assets] as StaticAssets
+}
+
+package "API Gateway Layer" {
+    [Kong API Gateway] as Kong
+    [Rate Limiting] as RateLimit
+    [Authentication] as Auth
+    [WebSocket Server\n(Socket.IO)] as WebSocket
+}
+
+package "Microservices Layer" {
+    [Race Service] as RaceService
+    [Telemetry Service] as TelemetryService
+    [Prediction Service] as PredictionService
+    [Analytics Service] as AnalyticsService
+    [Strategy Service] as StrategyService
+    [User Service] as UserService
+    [Notification Service] as NotificationService
+    [RCA Assistant] as RCAService
+}
+
+package "Event Streaming Layer" {
+    [Apache Kafka] as Kafka
+    [Stream Processing\n(Flink/Kafka Streams)] as StreamProcessing
+}
+
+package "ML & AI Layer" {
+    [TorchServe\n(LSTM, RL)] as TorchServe
+    [TensorFlow Serving\n(XGBoost)] as TFServing
+    [Generative AI\n(GPT-4/Claude)] as GenAI
+    [Feature Store\n(Feast)] as FeatureStore
+    [MLflow\n(Model Registry)] as MLflow
+}
+
+package "Data Layer" {
+    database "PostgreSQL\n(Relational)" as PostgreSQL
+    database "TimescaleDB\n(Time-Series)" as TimescaleDB
+    database "MongoDB\n(Document)" as MongoDB
+    database "Redis\n(Cache)" as Redis
+    database "S3\n(Data Lake)" as S3
+}
+
+package "External Integrations" {
+    [OpenF1 API] as OpenF1
+    [FastF1] as FastF1
+    [Ergast API] as Ergast
+    [Weather APIs] as Weather
+    [Firebase\n(Push Notifications)] as Firebase
+    [Auth0\n(OAuth)] as Auth0
+}
+
+package "Monitoring & Observability" {
+    [Prometheus +\nGrafana] as Prometheus
+    [ELK Stack] as ELK
+    [Jaeger\n(Tracing)] as Jaeger
+    [DataDog/Sentry] as APM
+}
+
+' Client connections
+WebApp --> CDN
+MobileApp --> CDN
+APIClient --> Kong
+AdminPanel --> Kong
+
+CDN --> StaticAssets
+CDN --> Kong
+
+' API Gateway connections
+Kong --> RateLimit
+Kong --> Auth
+Kong ..> WebSocket
+
+' Gateway to Services
+Kong --> RaceService
+Kong --> TelemetryService
+Kong --> PredictionService
+Kong --> AnalyticsService
+Kong --> StrategyService
+Kong --> UserService
+Kong --> NotificationService
+Kong --> RCAService
+
+' Services to Kafka
+RaceService --> Kafka
+TelemetryService --> Kafka
+PredictionService --> Kafka
+StrategyService --> Kafka
+
+' Kafka to Stream Processing
+Kafka --> StreamProcessing
+StreamProcessing --> Kafka
+
+' Kafka to WebSocket
+Kafka --> WebSocket
+WebSocket --> WebApp
+WebSocket --> MobileApp
+
+' Services to ML Layer
+PredictionService --> TorchServe
+PredictionService --> TFServing
+PredictionService --> FeatureStore
+StrategyService --> TorchServe
+RCAService --> GenAI
+AnalyticsService --> MLflow
+
+' Feature Store connections
+FeatureStore --> Redis
+FeatureStore --> S3
+
+' Services to Data Layer
+RaceService --> PostgreSQL
+TelemetryService --> TimescaleDB
+PredictionService --> TimescaleDB
+AnalyticsService --> PostgreSQL
+StrategyService --> PostgreSQL
+UserService --> PostgreSQL
+UserService --> MongoDB
+
+' All services to Redis
+RaceService ..> Redis
+TelemetryService ..> Redis
+PredictionService ..> Redis
+AnalyticsService ..> Redis
+StrategyService ..> Redis
+
+' Data Lake connections
+TelemetryService --> S3
+MLflow --> S3
+
+' External Integrations
+TelemetryService --> OpenF1
+RaceService --> FastF1
+RaceService --> Ergast
+StrategyService --> Weather
+NotificationService --> Firebase
+UserService --> Auth0
+
+' Monitoring connections
+RaceService ..> Prometheus
+TelemetryService ..> Prometheus
+PredictionService ..> Prometheus
+AnalyticsService ..> Prometheus
+StrategyService ..> Prometheus
+
+RaceService ..> ELK
+TelemetryService ..> ELK
+PredictionService ..> ELK
+
+RaceService ..> Jaeger
+TelemetryService ..> Jaeger
+PredictionService ..> Jaeger
+
+RaceService ..> APM
+TelemetryService ..> APM
+PredictionService ..> APM
+
+@enduml

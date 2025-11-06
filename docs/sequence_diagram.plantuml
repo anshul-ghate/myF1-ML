@@ -1,0 +1,32 @@
+@startuml
+actor User
+participant "Frontend (UI)" as UI
+participant "Supabase Realtime" as Realtime
+participant "Data Ingestion Service" as Ingestion
+participant "F1 Data API" as F1API
+
+autonumber
+
+User -> UI: Navigates to Live Race page
+UI -> Realtime: Subscribe to channel "race:{raceId}"
+Realtime --> UI: Acknowledges subscription
+
+loop Periodically (e.g., every 5s)
+    Ingestion -> F1API: GET /live_timing
+    F1API --> Ingestion: Returns latest lap data
+    Ingestion -> Realtime: Broadcast on "race:{raceId}"
+    note right
+        Payload: {
+            type: "LAP_UPDATE",
+            driver: "VER",
+            lap_time: "1:32.543",
+            position: 1
+        }
+    end note
+end
+
+Realtime -> UI: Pushes new event to client
+UI -> UI: Updates leaderboard and track map
+User -> UI: Sees updated race state
+
+@enduml

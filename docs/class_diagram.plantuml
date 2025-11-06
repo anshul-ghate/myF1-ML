@@ -1,0 +1,71 @@
+@startuml
+!theme plain
+title Class Diagram (Full-Stack)
+
+' Data Models (mirroring ER diagram)
+class Driver {
+  +id: uuid
+  +name: string
+}
+
+class Race {
+  +id: uuid
+  +name: string
+  +date: Date
+}
+
+class Prediction {
+    +id: uuid
+    +predicted_position: int
+    +confidence: float
+}
+
+' Backend Service Interfaces (implemented by Supabase client/Edge Functions)
+interface IDatabaseService {
+  +getDrivers(): Promise<Driver[]>
+  +getRaceSchedule(season: number): Promise<Race[]>
+  +getRacePredictions(raceId: uuid): Promise<Prediction[]>
+  +getUserProfile(userId: uuid): Promise<Profile>
+}
+
+interface IAuthService {
+  +signUp(email, password): Promise<User>
+  +signIn(email, password): Promise<User>
+  +signOut(): Promise<void>
+}
+
+interface IRealtimeService {
+    +subscribeToRace(raceId: uuid, callback: (payload) => void): Subscription
+}
+
+interface IChatService {
+    +ask(question: string): Promise<string>
+}
+
+' Frontend Components
+class DashboardComponent {
+    -dbService: IDatabaseService
+    +displayStandings()
+}
+
+class LiveRaceComponent {
+    -realtimeService: IRealtimeService
+    +showLiveLeaderboard()
+}
+
+class ChatComponent {
+    -chatService: IChatService
+    +sendMessage()
+}
+
+' Relationships
+DashboardComponent ..> IDatabaseService
+LiveRaceComponent ..> IRealtimeService
+ChatComponent ..> IChatService
+
+note "Services are abstractions over the Supabase client library and Edge Functions." as N1
+IDatabaseService .. N1
+IRealtimeService .. N1
+IChatService .. N1
+
+@enduml

@@ -1,0 +1,104 @@
+@startuml
+!theme plain
+title Database ER Diagram (Supabase PostgreSQL)
+
+' Entities
+entity "users" as users {
+  * id: uuid <<PK>> (from auth.users)
+  --
+  email: varchar
+  ...
+}
+
+entity "profiles" as profiles {
+  * user_id: uuid <<PK, FK>>
+  --
+  username: varchar
+  favorite_driver_id: uuid <<FK>>
+  favorite_constructor_id: uuid <<FK>>
+}
+
+entity "drivers" as drivers {
+  * id: uuid <<PK>>
+  --
+  name: varchar
+  nationality: varchar
+  permanent_number: integer
+  code: varchar(3)
+  dob: date
+  headshot_url: varchar
+}
+
+entity "constructors" as constructors {
+  * id: uuid <<PK>>
+  --
+  name: varchar
+  nationality: varchar
+  logo_url: varchar
+}
+
+entity "seasons" as seasons {
+  * year: integer <<PK>>
+  --
+  url: varchar
+}
+
+entity "circuits" as circuits {
+  * id: uuid <<PK>>
+  --
+  name: varchar
+  location: varchar
+  country: varchar
+}
+
+entity "races" as races {
+  * id: uuid <<PK>>
+  --
+  season_year: integer <<FK>>
+  round: integer
+  name: varchar
+  date: date
+  time: time
+  circuit_id: uuid <<FK>>
+}
+
+entity "race_results" as race_results {
+  * race_id: uuid <<PK, FK>>
+  * driver_id: uuid <<PK, FK>>
+  --
+  constructor_id: uuid <<FK>>
+  position: integer
+  points: float
+  status: varchar
+  fastest_lap_time: time
+  fastest_lap_rank: integer
+}
+
+entity "predictions" as predictions {
+    * id: uuid <<PK>>
+    --
+    race_id: uuid <<FK>>
+    driver_id: uuid <<FK>>
+    prediction_type: varchar (e.g., 'QUALIFYING', 'RACE_WINNER')
+    predicted_position: integer
+    confidence: float
+    model_version: varchar
+    created_at: timestamp
+}
+
+' Relationships
+users ||..o| profiles : "one-to-one"
+profiles }o..|| drivers
+profiles }o..|| constructors
+
+seasons ||--o{ races
+circuits ||--o{ races
+
+races ||--o{ race_results
+drivers ||--o{ race_results
+constructors ||--o{ race_results
+
+races ||--o{ predictions
+drivers ||--o{ predictions
+
+@enduml

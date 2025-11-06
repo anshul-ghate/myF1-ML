@@ -1,0 +1,29 @@
+@startuml
+!theme plain
+
+title UI Navigation Flow
+
+state "Dashboard" as Dashboard
+state "Live Race View" as LiveRace
+state "Strategy Sandbox" as Sandbox
+state "AI Assistant" as Assistant
+state "Settings" as Settings
+
+[*] --> Dashboard
+
+Dashboard --> LiveRace: Tap "View Live Race" on upcoming race widget
+Dashboard --> Sandbox: Tap "Analyze Race" on a past race
+Dashboard --> Assistant: Tap AI Assistant button
+Dashboard --> Settings: Tap settings/profile icon
+
+LiveRace --> Dashboard: Back
+LiveRace --> Assistant: Tap AI Assistant button
+
+Sandbox --> Dashboard: Back
+Sandbox --> Assistant: Tap AI Assistant button
+
+Assistant --> Dashboard: Close/Back
+
+Settings --> Dashboard: Save & Close
+
+@enduml

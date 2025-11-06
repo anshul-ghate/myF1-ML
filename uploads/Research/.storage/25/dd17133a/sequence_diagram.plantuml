@@ -1,0 +1,111 @@
+@startuml Live Race Prediction Sequence
+
+actor User
+participant "Web Client" as Client
+participant "API Gateway" as Gateway
+participant "WebSocket Server" as WS
+participant "Prediction Service" as PredService
+participant "Feature Store" as Feast
+participant "ML Model" as Model
+participant "Kafka" as Kafka
+participant "TimescaleDB" as TSDB
+participant "Redis Cache" as Redis
+
+== User Opens Live Race Dashboard ==
+
+User -> Client: Open live race page
+Client -> Gateway: GET /api/races/live
+Gateway -> PredService: get_live_race()
+PredService -> TSDB: SELECT * FROM race_events WHERE status='LIVE'
+TSDB --> PredService: race_data
+PredService --> Gateway: race_data
+Gateway --> Client: race_data (JSON)
+Client -> Client: Render dashboard
+
+== Establish WebSocket Connection ==
+
+Client -> WS: Connect (session_id, user_id)
+WS -> WS: Authenticate user
+WS -> WS: Join race room
+WS --> Client: Connection established
+
+== Real-Time Telemetry Stream ==
+
+loop Every 1-2 seconds
+    Kafka -> WS: telemetry.processed
+    note right
+        Input: {
+            "session_id": "uuid",
+            "driver_id": "uuid",
+            "lap_number": 15,
+            "speed": 285.5,
+            "position": 3,
+            "tire_age": 12,
+            "tire_compound": "MEDIUM",
+            "gap_ahead": 2.3
+        }
+    end note
+    WS -> WS: Transform for client
+    WS --> Client: WebSocket push
+    Client -> Client: Update dashboard
+end
+
+== Generate Lap Time Prediction ==
+
+User -> Client: Click "Predict Next Lap"
+Client -> Gateway: POST /api/predictions/lap-time
+    note right
+        Input: {
+            "driver_id": "uuid",
+            "session_id": "uuid",
+            "current_lap": 15
+        }
+    end note
+
+Gateway -> PredService: predict_lap_time()
+
+PredService -> Redis: GET cached_prediction
+Redis --> PredService: null (cache miss)
+
+PredService -> Feast: get_features()
+Feast -> Redis: Fetch online features
+Redis --> Feast: features
+Feast --> PredService: features
+
+PredService -> Model: predict(features)
+Model -> Model: LSTM inference
+Model --> PredService: prediction
+    note right
+        Output: {
+            "lap_time": 92.456,
+            "confidence": 0.87,
+            "prediction_interval": [92.1, 92.8]
+        }
+    end note
+
+PredService -> PredService: Calculate SHAP values
+PredService -> Redis: SET cached_prediction (TTL: 30s)
+PredService -> TSDB: INSERT INTO predictions
+PredService -> Kafka: Publish prediction
+
+PredService --> Gateway: prediction_result
+    note right
+        Output: {
+            "prediction_id": "uuid",
+            "predicted_lap_time": 92.456,
+            "confidence": 0.87,
+            "explanation": {
+                "top_factors": [
+                    {"feature": "tire_age", "impact": +0.5},
+                    {"feature": "track_temp", "impact": +0.2}
+                ]
+            }
+        }
+    end note
+Gateway --> Client: prediction_result (JSON)
+
+Client -> Client: Display prediction
+Client -> Client: Show confidence (87%)
+Client -> Client: Render SHAP chart
+
+@enduml

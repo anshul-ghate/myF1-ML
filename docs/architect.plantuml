@@ -1,0 +1,53 @@
+@startuml
+!theme plain
+title System Architecture (Supabase Full-Stack)
+
+package "User-Facing" {
+    package "Frontend Application (Next.js)" {
+        [UI Components (Shadcn/React)] as UI
+        [State Management (Zustand)] as State
+    }
+}
+
+package "Cloud Backend" {
+    package "Supabase" {
+        [Supabase Auth] as Auth
+        [PostgreSQL Database] as DB
+        [Realtime] as Realtime
+        [Edge Functions] as Functions
+        [Storage] as SupabaseStorage
+    }
+
+    package "External Compute" {
+        [Data Ingestion Service] as Ingestion
+        [ML Model Worker (Retraining & Prediction)] as MLWorker
+    }
+}
+
+package "Third-Party APIs" {
+    [F1 Data API (e.g., Ergast, FastF1)] as F1API
+    [Generative AI API (e.g., OpenAI)] as GenAIAPI
+}
+
+' Frontend to Supabase
+UI -> Auth: User login/signup
+UI -> DB: Queries for data (via Supabase client)
+UI -> Functions: Invokes serverless functions (e.g., AI chat)
+State <--> Realtime: Subscribes to live race data channels
+
+' Supabase Internal & Edge Functions
+Functions -> DB: CRUD operations
+Functions -> GenAIAPI: Proxies requests to AI assistant
+Functions -> DB: Updates tables (e.g., driver/team changes via cron job)
+Auth -> DB: Manages users table
+
+' Backend Services to Supabase
+Ingestion -> F1API: Fetches live/historical data
+Ingestion -> Realtime: Broadcasts live data
+Ingestion -> DB: Stores historical data
+
+MLWorker -> DB: Reads data for training
+MLWorker -> DB: Writes new predictions
+MLWorker -> SupabaseStorage: Stores trained model artifacts
+
+@enduml

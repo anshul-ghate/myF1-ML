@@ -1,0 +1,33 @@
+$ cd /workspace && find . -type d \( -name "site-packages" -o -name "node_modules" \) -prune -o -type f -name "*.md" -print | head -20
+./F1_Analytics_Enhancement_Plan.md
+./docs/prd/f1_analytics_prd.md
+./report_sections/advanced_race_strategy_modeling.md
+./report_sections/introduction_f1_analytics_with_aws.md
+./technical_summary_f1_overtake_probability_model.md
+./uploads/F1-Real-Time-Analytics-Engine-Complete-Documentation.md
+./web_info_summaries/advanced_ml_for_f1_strategy.md
+./web_info_summaries/aws-f1-technical-architecture.md
+./web_info_summaries/f1_open_source_analytics_tools_summary.md
+./web_info_summaries/f1_telemetry_driver_analysis_methods.md
+$ tree /workspace -I 'site-packages|node_modules' -L 3
+
+/workspace
+├── F1_Analytics_Enhancement_Plan.md
+├── docs
+│   └── prd
+│       └── f1_analytics_prd.md
+├── report_sections
+│   ├── advanced_race_strategy_modeling.md
+│   └── introduction_f1_analytics_with_aws.md
+├── technical_summary_f1_overtake_probability_model.md
+├── uploads
+│   └── F1-Real-Time-Analytics-Engine-Complete-Documentation.md
+└── web_info_summaries
+    ├── advanced_ml_for_f1_strategy.md
+    ├── aws-f1-technical-architecture.md
+    ├── f1_open_source_analytics_tools_summary.md
+    └── f1_telemetry_driver_analysis_methods.md
+
+6 directories, 10 files
+$ mkdir -p /workspace/docs/design
+
