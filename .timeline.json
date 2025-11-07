@@ -1,17 +1,17 @@
 {
-  "timeline_index": 254,
+  "timeline_index": 285,
   "planner": {
     "Team Leader": {
       "1": {
         "task_id": "1",
         "dependent_task_ids": [],
-        "instruction": "URGENT: Fix the critical runtime error in DriverStandings.tsx where 'currentData is not a function'. This is blocking the application from running. Investigate the error at line 325 and resolve it immediately.",
+        "instruction": "Research and design a comprehensive ML-based prediction and analytics system using FastF1 library. Study the research materials in `/workspace/uploads/Research` and the FastF1 documentation at https://docs.fastf1.dev/gen_modules/examples_gallery/. Create a detailed technical specification document that includes:\n1. Data ingestion strategy using FastF1 API\n2. ML model architecture for race predictions (qualifying, race results, pit stop strategies)\n3. Driver and constructor performance analytics algorithms\n4. Track-specific analytics and telemetry analysis\n5. Strategy simulator logic and implementation approach\n6. Automated agent design for continuous data sync and model retraining\nSave the document to `docs/ml_analytics_specification.md`.",
         "task_type": "general",
         "code": "",
         "result": "",
         "is_success": false,
         "is_finished": false,
-        "assignee": "Alex",
+        "assignee": "David",
         "start_at": 1762499256.5451822
       },
       "current_task_id": "1",
@@ -20,13 +20,13 @@
         "dependent_task_ids": [
           "1"
         ],
-        "instruction": "Complete the full Supabase backend implementation as specified in `docs/system_design.md`. This includes:\n1. Create all database tables (drivers, constructors, races, circuits, results, predictions, user_predictions, etc.)\n2. Set up Supabase Auth for user authentication\n3. Implement Edge Functions for data ingestion from Ergast API\n4. Create API endpoints for all CRUD operations\n5. Set up real-time subscriptions for live data updates\nThe Supabase connection is now available, so proceed with full implementation.",
+        "instruction": "Implement the complete backend ML analytics engine based on `docs/ml_analytics_specification.md`. This includes:\n1. Set up FastF1 library integration in the backend\n2. Build data ingestion pipelines for historical and live F1 data\n3. Implement ML models for race predictions (use scikit-learn, TensorFlow, or PyTorch as appropriate)\n4. Create driver/constructor performance analysis algorithms\n5. Develop track-specific analytics using telemetry data\n6. Build the intelligent agent for automatic data synchronization and model retraining\n7. Implement strategy simulator backend logic\n8. Create Supabase Edge Functions or Python backend services to expose these capabilities via APIs\nAll implementations should store results in Supabase database and provide REST APIs for frontend consumption.",
         "task_type": "general",
         "code": "",
         "result": "",
         "is_success": false,
         "is_finished": false,
-        "assignee": "Alex",
+        "assignee": "David",
         "start_at": 1762464811.8934796
       },
       "3": {
@@ -34,13 +34,13 @@
         "dependent_task_ids": [
           "2"
         ],
-        "instruction": "Implement the complete ML prediction and analytics system as detailed in `docs/data_science_design.md`. This includes:\n1. Build the intelligent agent for automated data ingestion and model retraining\n2. Implement race outcome prediction models using historical data\n3. Create driver performance analysis algorithms\n4. Develop track-specific analytics and predictions\n5. Set up the model retraining pipeline using Supabase Functions\n6. Implement data quality monitoring and model performance tracking\nAll outputs should be stored in the Supabase database for frontend consumption.",
+        "instruction": "Build the complete, fully functional frontend application with all features operational. Based on the ML backend APIs from Task 2, implement:\n\n**Core Functionality:**\n1. Automatic data synchronization on app load (no manual sync button needed)\n2. Real-time loading states that resolve to actual data\n3. Fully functional Dashboard with:\n   - Next Race countdown with actual race data\n   - Last Race Results with complete race data\n   - Driver Standings with live data\n   - Constructor Standings with live data\n\n**Feature Tabs (All Must Be Operational):**\n4. Predictions Tab:\n   - Display ML-generated race predictions\n   - Show confidence scores and probability distributions\n   - Allow users to compare predictions vs actual results\n   - Visualize prediction accuracy over time\n\n5. Strategy Simulator Tab:\n   - Interactive pit stop strategy simulator\n   - Tire compound selection and degradation modeling\n   - Fuel load and lap time calculations\n   - Weather impact simulation\n\n6. Drivers Tab:\n   - Complete driver profiles with statistics\n   - Performance trends and analytics\n   - Head-to-head comparisons\n   - Telemetry data visualizations\n\n7. Constructors Tab:\n   - Team performance analytics\n   - Car development trends\n   - Reliability statistics\n\n**Advanced Features:**\n8. Implement rich data visualizations using Chart.js or Recharts\n9. Add interactive track maps with sector analysis\n10. Implement real-time data updates\n11. Add comprehensive error handling and loading states\n12. Ensure responsive design for all screen sizes\n\nUse the FastF1 data provided by the backend APIs. The application must be dynamic, data-driven, and fully functional.",
         "task_type": "general",
         "code": "",
         "result": "",
         "is_success": false,
         "is_finished": false,
-        "assignee": "David",
+        "assignee": "Alex",
         "start_at": 1762464909.3937807
       },
       "4": {
@@ -134,46 +134,46 @@
       "1": {
         "task_id": "1",
         "dependent_task_ids": [],
-        "instruction": "Read the PRD document located at `docs/prd_f1_fan_analytics_app.md` to understand the product requirements.",
+        "instruction": "Review all research documents in /workspace/uploads/Research to understand the complete feature requirements, ML models, and data science approaches needed for the F1 Analytics application.",
         "task_type": "other",
         "code": "",
         "result": "",
         "is_success": false,
         "is_finished": true,
         "assignee": "David",
-        "start_at": 1762464916.216719,
-        "end_at": 1762464920.8521845
+        "start_at": 1762544227.287149,
+        "end_at": 1762544255.0802898
       },
-      "current_task_id": "28",
+      "current_task_id": "3",
       "2": {
         "task_id": "2",
         "dependent_task_ids": [
           "1"
         ],
-        "instruction": "Read the System Design document located at `docs/system_design.md` to understand the technical architecture.",
+        "instruction": "Review the current system design (docs/system_design.md) and data science design (docs/data_science_design.md) documents to understand the existing architecture and identify gaps between planned features and current implementation.",
         "task_type": "other",
         "code": "",
         "result": "",
         "is_success": false,
         "is_finished": true,
         "assignee": "David",
-        "start_at": 1762464920.8522346,
-        "end_at": 1762464924.9586112
+        "start_at": 1762544255.0803301,
+        "end_at": 1762544536.5244598
       },
       "3": {
         "task_id": "3",
         "dependent_task_ids": [
           "2"
         ],
-        "instruction": "Create the Data Science Design Document based on the PRD and System Design, covering data sources, localStorage schema, ML model plan, the self-improvising mechanism, and the GenAI assistant architecture. Save the document as `docs/data_science_design.md`.",
+        "instruction": "Create a comprehensive implementation plan that includes: 1) FastF1 library integration for real-time F1 data, 2) Automatic data synchronization on app startup, 3) Machine learning models for predictions (race outcomes, qualifying, strategy), 4) All missing features (Predictions tab, Strategy Simulator, Drivers tab, etc.), 5) Data visualization components for analytics. Document this plan clearly for the team.",
         "task_type": "other",
         "code": "",
         "result": "",
         "is_success": false,
         "is_finished": true,
         "assignee": "David",
-        "start_at": 1762464924.9586487,
-        "end_at": 1762466431.1756318
+        "start_at": 1762544536.5245008,
+        "end_at": 1762544902.9855134
       },
       "26": {
         "task_id": "26",
@@ -216,7 +216,7 @@
         "is_finished": true,
         "assignee": "David",
         "start_at": 1762466446.2782116,
-        "end_at": 1762466549.3383243
+        "end_at": 1762544227.287141
       }
     }
   },
@@ -475,7 +475,38 @@
     "251": 1,
     "252": 1,
     "253": 1,
-    "254": 1
+    "254": 1,
+    "255": 1,
+    "256": 1,
+    "257": 1,
+    "258": 1,
+    "259": 1,
+    "260": 1,
+    "261": 1,
+    "262": 1,
+    "263": 1,
+    "264": 1,
+    "265": 1,
+    "266": 1,
+    "267": 1,
+    "268": 1,
+    "269": 1,
+    "270": 1,
+    "271": 1,
+    "272": 1,
+    "273": 1,
+    "274": 1,
+    "275": 1,
+    "276": 1,
+    "277": 1,
+    "278": 1,
+    "279": 0,
+    "280": 1,
+    "281": 1,
+    "282": 1,
+    "283": 1,
+    "284": 1,
+    "285": 1
   },
   "preview_servers": {},
   "preview_server": {
