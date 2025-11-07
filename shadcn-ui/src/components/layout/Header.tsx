@@ -1,15 +1,7 @@
 import { Link } from "react-router-dom";
-import { CircleUser, Menu, Package2, Search } from "lucide-react";
+import { Menu, Package2, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ModeToggle } from "../mode-toggle";
@@ -19,10 +11,6 @@ interface HeaderProps {
 }
 
 export default function Header({ onSearch }: HeaderProps) {
-  // For UI development, we'll assume a user is logged in.
-  // In a real app, this would be based on auth state.
-  const isLoggedIn = true; 
-
   return (
     <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
       <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
@@ -75,33 +63,15 @@ export default function Header({ onSearch }: HeaderProps) {
           </div>
         </form>
         <ModeToggle />
-        {isLoggedIn ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="rounded-full">
-                <CircleUser className="h-5 w-5" />
-                <span className="sr-only">Toggle user menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild><Link to="/profile">Profile</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link to="/settings">Settings</Link></DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <div className="flex items-center gap-2">
-              <Button asChild variant="outline">
-                  <Link to="/login">Login</Link>
-              </Button>
-              <Button asChild>
-                  <Link to="/signup">Sign Up</Link>
-              </Button>
-          </div>
-        )}
+        {/* Reverted to simple buttons to fix a runtime error. The user dropdown menu will be re-added once the issue is resolved. */}
+        <div className="flex items-center gap-2">
+            <Button asChild variant="outline">
+                <Link to="/login">Login</Link>
+            </Button>
+            <Button asChild>
+                <Link to="/signup">Sign Up</Link>
+            </Button>
+        </div>
       </div>
     </header>
   );
