@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: f1-analytics-backend-dev
+    ports:
+      - "8000:8000"
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=True
+      - FASTF1_CACHE_DIR=/app/fastf1_cache
+      - FASTF1_ENABLE_CACHE=True
+      - AUTO_SYNC_ON_STARTUP=True
+      - SYNC_INTERVAL_HOURS=24
+      - HISTORICAL_YEARS=[2023,2024]
+      - MODEL_DIR=/app/models
+      - MODEL_CACHE_DIR=/app/models/cache
+    
+    volumes:
+      # Mount source code for hot reload
+      - .:/app
+      # Persist caches
+      - fastf1-cache:/app/fastf1_cache
+      - ml-models:/app/models
+      - logs:/app/logs
+    
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    
+    restart: unless-stopped
+    
+    networks:
+      - f1-analytics-network
+
+volumes:
+  fastf1-cache:
+  ml-models:
+  logs:
+
+networks:
+  f1-analytics-network:
+    driver: bridge

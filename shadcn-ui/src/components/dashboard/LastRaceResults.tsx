@@ -1,71 +1,44 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
-import { useQuery } from '@tanstack/react-query';
-import { fetchLastRaceResults } from '@/lib/dataFetchingService';
-import { useSortableData } from '@/hooks/useSortableData';
-import { usePagination } from '@/hooks/usePagination';
-import { Button } from '@/components/ui/button';
-import { ArrowUpDown, Trophy, AlertCircle } from 'lucide-react';
-import LastRaceSkeleton from '../skeletons/LastRaceSkeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useRaces } from '@/hooks/useBackendData';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Trophy, Loader2, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import type { Race, RaceResult } from '@/types/api';
 
 export default function LastRaceResults() {
-  const { data: race, isLoading } = useQuery({
-    queryKey: ['lastRaceResults'],
-    queryFn: fetchLastRaceResults,
-  });
+  const currentYear = new Date().getFullYear();
+  const { data: races, isLoading, error } = useRaces(currentYear);
 
-  const {
-    items: sortedResults,
-    requestSort,
-  } = useSortableData(race?.Results || [], { key: 'position', direction: 'ascending' });
-
-  const {
-    currentData,
-    currentPage,
-    maxPage,
-    next,
-    prev,
-  } = usePagination(sortedResults, 10);
+  // Get the most recent completed race
+  const lastRace = races?.find((race: Race) => 
+    new Date(race.date) < new Date() && race.results && race.results.length > 0
+  );
 
   if (isLoading) {
-    return <LastRaceSkeleton />;
-  }
-
-  if (!race || !race.Results || race.Results.length === 0) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>Last Race Results</CardTitle>
-          <CardDescription>Most Recent Race Results</CardDescription>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Last Race Results</CardTitle>
         </CardHeader>
         <CardContent>
-          <Alert>
+          <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>No Race Results Available</AlertTitle>
             <AlertDescription>
-              Please initialize the backend by visiting the <a href="/admin" className="underline font-semibold">Admin page</a> and clicking "Sync F1 Data".
+              Failed to load race results. Please ensure the backend is running.
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -73,76 +46,53 @@ export default function LastRaceResults() {
     );
   }
 
-  const fastestLapDriver = race.Results.find(r => r?.FastestLap?.rank === '1');
+  if (!lastRace) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Last Race Results</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-center text-muted-foreground py-8">No recent race results available</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Last Race Results: {race.raceName}</CardTitle>
-        <CardDescription className="flex justify-between items-center">
-          <span>{race.Circuit?.circuitName} - {new Date(race.date).toLocaleDateString()}</span>
-          {fastestLapDriver && (
-            <span className="flex items-center gap-2 text-sm font-medium text-purple-600 dark:text-purple-400">
-              <Trophy className="h-4 w-4" />
-              Fastest Lap: {fastestLapDriver.Driver?.givenName} {fastestLapDriver.Driver?.familyName} ({fastestLapDriver.FastestLap?.Time?.time})
-            </span>
-          )}
+        <CardTitle>Last Race Results</CardTitle>
+        <CardDescription>
+          {lastRace.race_name} - {lastRace.circuit_name}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="overflow-auto h-[600px]">
-          <Table>
-            <TableHeader className="sticky-header">
-              <TableRow>
-                <TableHead>
-                  <Button variant="ghost" onClick={() => requestSort('position')}>
-                    Pos <ArrowUpDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </TableHead>
-                <TableHead>Driver</TableHead>
-                <TableHead>Constructor</TableHead>
-                <TableHead>
-                  <Button variant="ghost" onClick={() => requestSort('points')}>
-                    Points <ArrowUpDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </TableHead>
-                <TableHead>Status</TableHead>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-12">Pos</TableHead>
+              <TableHead>Driver</TableHead>
+              <TableHead>Team</TableHead>
+              <TableHead className="text-right">Points</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {lastRace.results?.slice(0, 10).map((result: RaceResult) => (
+              <TableRow key={result.driver_id}>
+                <TableCell className="font-bold">
+                  {result.position === 1 && <Trophy className="h-4 w-4 inline text-yellow-600 mr-1" />}
+                  {result.position}
+                </TableCell>
+                <TableCell className="font-medium">{result.driver_name}</TableCell>
+                <TableCell>{result.constructor_name}</TableCell>
+                <TableCell className="text-right">
+                  <Badge variant="secondary">{result.points}</Badge>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {currentData.map((result) => (
-                <TableRow key={result.Driver?.driverId || Math.random()}>
-                  <TableCell>{result.position}</TableCell>
-                  <TableCell>
-                    {result.Driver?.givenName} {result.Driver?.familyName}
-                  </TableCell>
-                  <TableCell>{result.Constructor?.name}</TableCell>
-                  <TableCell>{result.points}</TableCell>
-                  <TableCell>{result.status}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-        <Pagination className="mt-4">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious href="#" onClick={() => prev()} />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">{currentPage}</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <span className="px-2">/</span>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">{maxPage}</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" onClick={() => next()} />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+            ))}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   );

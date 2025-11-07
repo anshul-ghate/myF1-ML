@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: f1-analytics-backend
+    ports:
+      - "8000:8000"
+    environment:
+      # Supabase Configuration
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      
+      # Server Configuration
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=${DEBUG:-False}
+      
+      # FastF1 Configuration
+      - FASTF1_CACHE_DIR=/app/fastf1_cache
+      - FASTF1_ENABLE_CACHE=True
+      
+      # Data Sync Configuration
+      - AUTO_SYNC_ON_STARTUP=${AUTO_SYNC_ON_STARTUP:-True}
+      - SYNC_INTERVAL_HOURS=${SYNC_INTERVAL_HOURS:-24}
+      - HISTORICAL_YEARS=[2023,2024]
+      
+      # Model Configuration
+      - MODEL_DIR=/app/models
+      - MODEL_CACHE_DIR=/app/models/cache
+    
+    volumes:
+      # Persist FastF1 cache
+      - fastf1-cache:/app/fastf1_cache
+      # Persist ML models
+      - ml-models:/app/models
+      # Persist logs
+      - logs:/app/logs
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    networks:
+      - f1-analytics-network
+
+volumes:
+  fastf1-cache:
+    driver: local
+  ml-models:
+    driver: local
+  logs:
+    driver: local
+
+networks:
+  f1-analytics-network:
+    driver: bridge
