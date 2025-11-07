@@ -1,65 +1,61 @@
 {
-  "timeline_index": 187,
+  "timeline_index": 209,
   "planner": {
     "Team Leader": {
       "1": {
         "task_id": "1",
         "dependent_task_ids": [],
-        "instruction": "Analyze the user's detailed requirements for the F1 Analytics and Prediction application and the content of the `/workspace/uploads/Research` folder. Create a comprehensive Product Requirement Document (PRD). The PRD should detail all features, including the analytics dashboard, prediction models (for qualification, sprint, and main race), live lap-by-lap predictions, user-specific features (driver monitoring, strategy experimentation), the GenAI-powered F1 assistant, and data handling requirements (date awareness, self-improvisation). The final PRD should be saved as a markdown file in the `docs/` directory.",
+        "instruction": "Resolve any outstanding Supabase connection issues and complete the core backend infrastructure setup as detailed in `docs/system_design.md`. This includes creating the database schema, configuring Auth, and developing the initial set of Edge Functions for core data retrieval. This is the highest priority task and is blocking all other development.",
         "task_type": "general",
         "code": "",
         "result": "",
         "is_success": false,
-        "is_finished": true,
-        "assignee": "Emma",
-        "start_at": 1762464663.5456815,
-        "end_at": 1762464811.893451
+        "is_finished": false,
+        "assignee": "Alex",
+        "start_at": 1762499256.5451822
       },
-      "current_task_id": "6",
+      "current_task_id": "1",
       "2": {
         "task_id": "2",
         "dependent_task_ids": [
           "1"
         ],
-        "instruction": "Based on the PRD from Emma, create a comprehensive System Design document. The design should cover the overall architecture, including the frontend (web application), backend services, APIs for data fetching and predictions, and the integration points for the data models and the AI assistant. The document should also consider the chosen backend (Supabase or localStorage). Save the design document as a markdown file in the `docs/` directory.",
+        "instruction": "Based on the completed backend setup, implement the backend logic for the intelligent agent as described in `docs/data_science_design.md`. This includes the data ingestion and model retraining pipelines.",
         "task_type": "general",
         "code": "",
         "result": "",
         "is_success": false,
-        "is_finished": true,
-        "assignee": "Bob",
-        "start_at": 1762464811.8934796,
-        "end_at": 1762464909.393737
+        "is_finished": false,
+        "assignee": "David",
+        "start_at": 1762464811.8934796
       },
       "3": {
         "task_id": "3",
         "dependent_task_ids": [
-          "2"
+          "1"
         ],
-        "instruction": "Based on the PRD and System Design, create a detailed Data Science Design Document. This document should outline the plan for the data-driven components. It must specify: 1. Data sources and data acquisition strategy. 2. Data schema and storage. 3. A detailed plan for the machine learning models for race predictions, including feature engineering, model selection, training, and evaluation. 4. The design for the 'self-improvising' mechanism. 5. The architecture for the GenAI-powered F1 assistant, including the choice of models and integration strategy. Save the document as a markdown file in the `docs/` directory.",
+        "instruction": "Refactor the frontend to integrate with the new Supabase backend. Connect the UI components (including login, signup, and data displays) to the backend APIs and services.",
         "task_type": "general",
         "code": "",
         "result": "",
         "is_success": false,
-        "is_finished": true,
-        "assignee": "David",
-        "start_at": 1762464909.3937807,
-        "end_at": 1762464976.1175392
+        "is_finished": false,
+        "assignee": "Alex",
+        "start_at": 1762464909.3937807
       },
       "4": {
         "task_id": "4",
         "dependent_task_ids": [
           "3"
         ],
-        "instruction": "Based on the confirmation to use Supabase, update the System Design document (`docs/system_design.md`). The updated design must detail the full backend architecture, including: 1. A complete database schema (tables for users, drivers, teams, races, results, predictions, etc.). 2. Authentication strategy. 3. API design using Supabase Edge Functions. 4. Data storage strategy for larger files if needed (e.g., track layouts).",
+        "instruction": "With the frontend and backend integrated, implement the remaining advanced features as specified in the PRD (`docs/prd_f1_fan_analytics_app.md`).",
         "task_type": "general",
         "code": "",
         "result": "",
         "is_success": false,
-        "is_finished": true,
-        "assignee": "Bob",
-        "start_at": 1762464976.117582,
-        "end_at": 1762466416.027026
+        "is_finished": false,
+        "assignee": "Alex",
+        "start_at": 1762464976.117582
       },
       "5": {
         "task_id": "5",
@@ -88,7 +84,8 @@
         "is_success": false,
         "is_finished": false,
         "assignee": "Alex",
-        "start_at": 1762466569.4348893
+        "start_at": 1762466569.4348893,
+        "end_at": 1762499256.545172
       },
       "7": {
         "task_id": "7",
@@ -410,7 +407,29 @@
     "184": 1,
     "185": 1,
     "186": 1,
-    "187": 1
+    "187": 1,
+    "188": 1,
+    "189": 1,
+    "190": 1,
+    "191": 1,
+    "192": 1,
+    "193": 1,
+    "194": 1,
+    "195": 1,
+    "196": 1,
+    "197": 1,
+    "198": 1,
+    "199": 1,
+    "200": 1,
+    "201": 1,
+    "202": 1,
+    "203": 1,
+    "204": 1,
+    "205": 1,
+    "206": 1,
+    "207": 1,
+    "208": 1,
+    "209": 1
   },
   "preview_servers": {},
   "preview_server": {
