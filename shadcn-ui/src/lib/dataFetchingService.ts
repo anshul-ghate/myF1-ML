@@ -1,48 +1,63 @@
+// Data fetching service - now uses Supabase backend
 import {
-  DriverStanding,
-  ConstructorStanding,
-  Race,
-  RaceWithResults,
-} from '@/data/types';
+  getDriverStandings,
+  getConstructorStandings,
+  getLastRaceResults,
+  getRaceSchedule,
+  getNextRace,
+  getNextRacePredictions,
+} from './backendDataService';
 
-const BASE_URL = 'https://ergast.com/api/f1';
-
-async function fetchData(endpoint: string) {
-  const response = await fetch(`${BASE_URL}/${endpoint}`);
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
+export async function fetchDriverStandings(year: number = new Date().getFullYear()) {
+  try {
+    return await getDriverStandings(year);
+  } catch (error) {
+    console.error('Error fetching driver standings:', error);
+    return [];
   }
-  const data = await response.json();
-  return data.MRData;
 }
 
-export const DataFetchingService = {
-  async getDriverStandings(): Promise<DriverStanding[]> {
-    const data = await fetchData('current/driverStandings.json');
-    const standings = data.StandingsTable.StandingsLists[0].DriverStandings;
-    // The 'wins' property is part of the standings data from this endpoint
-    return standings;
-  },
+export async function fetchConstructorStandings(year: number = new Date().getFullYear()) {
+  try {
+    return await getConstructorStandings(year);
+  } catch (error) {
+    console.error('Error fetching constructor standings:', error);
+    return [];
+  }
+}
 
-  async getConstructorStandings(): Promise<ConstructorStanding[]> {
-    const data = await fetchData('current/constructorStandings.json');
-    const standings = data.StandingsTable.StandingsLists[0].ConstructorStandings;
-    // The 'wins' property is part of the standings data from this endpoint
-    return standings;
-  },
+export async function fetchLastRaceResults() {
+  try {
+    return await getLastRaceResults();
+  } catch (error) {
+    console.error('Error fetching last race results:', error);
+    return null;
+  }
+}
 
-  async getNextRace(): Promise<Race> {
-    const data = await fetchData('current/next.json');
-    return data.RaceTable.Races[0];
-  },
+export async function fetchRaceSchedule(year: number = new Date().getFullYear()) {
+  try {
+    return await getRaceSchedule(year);
+  } catch (error) {
+    console.error('Error fetching race schedule:', error);
+    return [];
+  }
+}
 
-  async getLastRaceResults(): Promise<RaceWithResults> {
-    const data = await fetchData('current/last/results.json');
-    return data.RaceTable.Races[0];
-  },
+export async function fetchNextRace() {
+  try {
+    return await getNextRace();
+  } catch (error) {
+    console.error('Error fetching next race:', error);
+    return null;
+  }
+}
 
-  async getRaceSchedule(): Promise<Race[]> {
-    const data = await fetchData('current.json');
-    return data.RaceTable.Races;
-  },
-};
+export async function fetchPredictions() {
+  try {
+    return await getNextRacePredictions();
+  } catch (error) {
+    console.error('Error fetching predictions:', error);
+    return [];
+  }
+}

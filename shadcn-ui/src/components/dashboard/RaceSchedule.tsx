@@ -7,19 +7,19 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useQuery } from '@tanstack/react-query';
-import { DataFetchingService } from '@/lib/dataFetchingService';
+import { fetchRaceSchedule, fetchNextRace } from '@/lib/dataFetchingService';
 import { Race } from '@/data/types';
 import { cn } from '@/lib/utils';
 
 export default function RaceSchedule() {
   const { data: schedule, isLoading: isLoadingSchedule } = useQuery({
     queryKey: ['raceSchedule'],
-    queryFn: DataFetchingService.getRaceSchedule,
+    queryFn: fetchRaceSchedule,
   });
 
   const { data: nextRace, isLoading: isLoadingNextRace } = useQuery({
     queryKey: ['nextRace'],
-    queryFn: DataFetchingService.getNextRace,
+    queryFn: fetchNextRace,
   });
 
   if (isLoadingSchedule || isLoadingNextRace) {

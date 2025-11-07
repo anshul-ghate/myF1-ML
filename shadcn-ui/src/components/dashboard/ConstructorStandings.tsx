@@ -30,7 +30,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { useQuery } from '@tanstack/react-query';
-import { DataFetchingService } from '@/lib/dataFetchingService';
+import { fetchConstructorStandings } from '@/lib/dataFetchingService';
 import { useSortableData } from '@/hooks/useSortableData';
 import { usePagination } from '@/hooks/usePagination';
 import { Button } from '@/components/ui/button';
@@ -47,7 +47,7 @@ interface ConstructorStandingsProps {
 export default function ConstructorStandings({ searchTerm }: ConstructorStandingsProps) {
   const { data: standings, isLoading } = useQuery({
     queryKey: ['constructorStandings'],
-    queryFn: DataFetchingService.getConstructorStandings,
+    queryFn: fetchConstructorStandings,
   });
   const [selectedStanding, setSelectedStanding] = useState<ConstructorStanding | null>(null);
 
@@ -100,7 +100,7 @@ export default function ConstructorStandings({ searchTerm }: ConstructorStanding
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentData().map((standing: ConstructorStanding) => (
+              {currentData.map((standing: ConstructorStanding) => (
                 <Dialog key={standing.Constructor.constructorId} onOpenChange={(isOpen) => !isOpen && setSelectedStanding(null)}>
                   <DialogTrigger asChild>
                     <TableRow onClick={() => setSelectedStanding(standing)} className="cursor-pointer">

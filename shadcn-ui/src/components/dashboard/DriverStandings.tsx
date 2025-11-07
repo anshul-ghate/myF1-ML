@@ -30,7 +30,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { useQuery } from '@tanstack/react-query';
-import { DataFetchingService } from '@/lib/dataFetchingService';
+import { fetchDriverStandings } from '@/lib/dataFetchingService';
 import { useSortableData } from '@/hooks/useSortableData';
 import { usePagination } from '@/hooks/usePagination';
 import { Button } from '@/components/ui/button';
@@ -47,7 +47,7 @@ interface DriverStandingsProps {
 export default function DriverStandings({ searchTerm }: DriverStandingsProps) {
   const { data: standings, isLoading } = useQuery({
     queryKey: ['driverStandings'],
-    queryFn: DataFetchingService.getDriverStandings,
+    queryFn: fetchDriverStandings,
   });
   const [selectedStanding, setSelectedStanding] = useState<DriverStanding | null>(null);
 
@@ -104,7 +104,7 @@ export default function DriverStandings({ searchTerm }: DriverStandingsProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentData().map((standing: DriverStanding) => (
+              {currentData.map((standing: DriverStanding) => (
                 <Dialog key={standing.Driver.driverId} onOpenChange={(isOpen) => !isOpen && setSelectedStanding(null)}>
                   <DialogTrigger asChild>
                     <TableRow onClick={() => setSelectedStanding(standing)} className="cursor-pointer">

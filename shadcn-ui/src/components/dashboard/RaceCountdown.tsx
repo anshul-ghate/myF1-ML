@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DataFetchingService } from '@/lib/dataFetchingService';
+import { fetchNextRace } from '@/lib/dataFetchingService';
 import type { Race } from '@/data/types';
 
 interface TimeLeft {
@@ -30,9 +30,11 @@ export function RaceCountdown() {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({});
 
   useEffect(() => {
-    DataFetchingService.getNextRace().then((race) => {
-      setNextRace(race);
-      setTimeLeft(calculateTimeLeft(race.date));
+    fetchNextRace().then((race) => {
+      if (race) {
+        setNextRace(race);
+        setTimeLeft(calculateTimeLeft(race.date));
+      }
     });
   }, []);
 

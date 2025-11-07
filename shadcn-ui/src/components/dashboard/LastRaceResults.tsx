@@ -22,7 +22,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { useQuery } from '@tanstack/react-query';
-import { DataFetchingService } from '@/lib/dataFetchingService';
+import { fetchLastRaceResults } from '@/lib/dataFetchingService';
 import { useSortableData } from '@/hooks/useSortableData';
 import { usePagination } from '@/hooks/usePagination';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,7 @@ import LastRaceSkeleton from '../skeletons/LastRaceSkeleton';
 export default function LastRaceResults() {
   const { data: race, isLoading } = useQuery({
     queryKey: ['lastRaceResults'],
-    queryFn: DataFetchingService.getLastRaceResults,
+    queryFn: fetchLastRaceResults,
   });
 
   const {
@@ -93,7 +93,7 @@ export default function LastRaceResults() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentData().map((result) => (
+              {currentData.map((result) => (
                 <TableRow key={result.Driver.driverId}>
                   <TableCell>{result.position}</TableCell>
                   <TableCell>
