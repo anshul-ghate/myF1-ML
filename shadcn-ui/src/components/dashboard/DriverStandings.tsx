@@ -34,11 +34,12 @@ import { fetchDriverStandings } from '@/lib/dataFetchingService';
 import { useSortableData } from '@/hooks/useSortableData';
 import { usePagination } from '@/hooks/usePagination';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, AlertCircle } from 'lucide-react';
 import type { DriverStanding } from '@/data/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import DriverDetails from '../details/DriverDetails';
 import StandingsSkeleton from '../skeletons/StandingsSkeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface DriverStandingsProps {
   searchTerm: string;
@@ -52,12 +53,12 @@ export default function DriverStandings({ searchTerm }: DriverStandingsProps) {
   const [selectedStanding, setSelectedStanding] = useState<DriverStanding | null>(null);
 
   const filteredStandings = useMemo(() => {
-    if (!standings) return [];
+    if (!standings || !Array.isArray(standings)) return [];
     return standings.filter(
       (s) =>
-        s.Driver.givenName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.Driver.familyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.Constructors[0].name.toLowerCase().includes(searchTerm.toLowerCase())
+        s?.Driver?.givenName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s?.Driver?.familyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s?.Constructors?.[0]?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [standings, searchTerm]);
 
@@ -76,6 +77,26 @@ export default function DriverStandings({ searchTerm }: DriverStandingsProps) {
 
   if (isLoading) {
     return <StandingsSkeleton />;
+  }
+
+  if (!standings || standings.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Driver Standings</CardTitle>
+          <CardDescription>Current 2024 Season Standings</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>No Data Available</AlertTitle>
+            <AlertDescription>
+              Please initialize the backend by visiting the <a href="/admin" className="underline font-semibold">Admin page</a> and clicking "Sync F1 Data".
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

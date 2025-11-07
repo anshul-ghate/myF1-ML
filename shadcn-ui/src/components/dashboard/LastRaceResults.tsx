@@ -26,8 +26,9 @@ import { fetchLastRaceResults } from '@/lib/dataFetchingService';
 import { useSortableData } from '@/hooks/useSortableData';
 import { usePagination } from '@/hooks/usePagination';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, Trophy } from 'lucide-react';
+import { ArrowUpDown, Trophy, AlertCircle } from 'lucide-react';
 import LastRaceSkeleton from '../skeletons/LastRaceSkeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function LastRaceResults() {
   const { data: race, isLoading } = useQuery({
@@ -52,22 +53,38 @@ export default function LastRaceResults() {
     return <LastRaceSkeleton />;
   }
 
-  if (!race) {
-    return <div>No race results found.</div>;
+  if (!race || !race.Results || race.Results.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Last Race Results</CardTitle>
+          <CardDescription>Most Recent Race Results</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>No Race Results Available</AlertTitle>
+            <AlertDescription>
+              Please initialize the backend by visiting the <a href="/admin" className="underline font-semibold">Admin page</a> and clicking "Sync F1 Data".
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
   }
 
-  const fastestLapDriver = race.Results.find(r => r.FastestLap?.rank === '1');
+  const fastestLapDriver = race.Results.find(r => r?.FastestLap?.rank === '1');
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Last Race Results: {race.raceName}</CardTitle>
         <CardDescription className="flex justify-between items-center">
-          <span>{race.Circuit.circuitName} - {new Date(race.date).toLocaleDateString()}</span>
+          <span>{race.Circuit?.circuitName} - {new Date(race.date).toLocaleDateString()}</span>
           {fastestLapDriver && (
             <span className="flex items-center gap-2 text-sm font-medium text-purple-600 dark:text-purple-400">
               <Trophy className="h-4 w-4" />
-              Fastest Lap: {fastestLapDriver.Driver.givenName} {fastestLapDriver.Driver.familyName} ({fastestLapDriver.FastestLap?.Time.time})
+              Fastest Lap: {fastestLapDriver.Driver?.givenName} {fastestLapDriver.Driver?.familyName} ({fastestLapDriver.FastestLap?.Time?.time})
             </span>
           )}
         </CardDescription>
@@ -94,12 +111,12 @@ export default function LastRaceResults() {
             </TableHeader>
             <TableBody>
               {currentData.map((result) => (
-                <TableRow key={result.Driver.driverId}>
+                <TableRow key={result.Driver?.driverId || Math.random()}>
                   <TableCell>{result.position}</TableCell>
                   <TableCell>
-                    {result.Driver.givenName} {result.Driver.familyName}
+                    {result.Driver?.givenName} {result.Driver?.familyName}
                   </TableCell>
-                  <TableCell>{result.Constructor.name}</TableCell>
+                  <TableCell>{result.Constructor?.name}</TableCell>
                   <TableCell>{result.points}</TableCell>
                   <TableCell>{result.status}</TableCell>
                 </TableRow>

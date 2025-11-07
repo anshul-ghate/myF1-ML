@@ -34,11 +34,12 @@ import { fetchConstructorStandings } from '@/lib/dataFetchingService';
 import { useSortableData } from '@/hooks/useSortableData';
 import { usePagination } from '@/hooks/usePagination';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, AlertCircle } from 'lucide-react';
 import type { ConstructorStanding } from '@/data/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import ConstructorDetails from '../details/ConstructorDetails';
 import StandingsSkeleton from '../skeletons/StandingsSkeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface ConstructorStandingsProps {
   searchTerm: string;
@@ -52,9 +53,9 @@ export default function ConstructorStandings({ searchTerm }: ConstructorStanding
   const [selectedStanding, setSelectedStanding] = useState<ConstructorStanding | null>(null);
 
   const filteredStandings = useMemo(() => {
-    if (!standings) return [];
+    if (!standings || !Array.isArray(standings)) return [];
     return standings.filter((s) =>
-      s.Constructor.name.toLowerCase().includes(searchTerm.toLowerCase())
+      s?.Constructor?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [standings, searchTerm]);
 
@@ -73,6 +74,26 @@ export default function ConstructorStandings({ searchTerm }: ConstructorStanding
 
   if (isLoading) {
     return <StandingsSkeleton />;
+  }
+
+  if (!standings || standings.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Constructor Standings</CardTitle>
+          <CardDescription>Current 2024 Season Standings</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>No Data Available</AlertTitle>
+            <AlertDescription>
+              Please initialize the backend by visiting the <a href="/admin" className="underline font-semibold">Admin page</a> and clicking "Sync F1 Data".
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
