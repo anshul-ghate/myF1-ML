@@ -120,6 +120,7 @@ class DataSyncAgent:
         try:
             circuit_data = {
                 'id': str(uuid.uuid4()),
+                'ergast_circuit_id': event['CircuitId'],
                 'name': event['Location'],
                 'location': event['Location'],
                 'country': event['Country']
@@ -128,7 +129,7 @@ class DataSyncAgent:
             # Check if exists
             existing = self.supabase.table('circuits')\
                 .select('id')\
-                .eq('name', circuit_data['name'])\
+                .eq('ergast_circuit_id', circuit_data['ergast_circuit_id'])\
                 .execute()
             
             if existing.data:
@@ -217,7 +218,8 @@ class DataSyncAgent:
             # Create new driver
             driver_data = {
                 'id': str(uuid.uuid4()),
-                'name': result['FullName'],
+                'given_name': result['FirstName'],
+                'family_name': result['LastName'],
                 'code': driver_code,
                 'permanent_number': int(result['DriverNumber']),
                 'nationality': result.get('CountryCode', 'Unknown')
@@ -289,7 +291,8 @@ class DataSyncAgent:
             
             driver_data = {
                 'id': str(uuid.uuid4()),
-                'name': driver['full_name'],
+                'given_name': driver['given_name'],
+                'family_name': driver['family_name'],
                 'code': driver['code'],
                 'permanent_number': driver['number'],
                 'nationality': 'Unknown'
