@@ -140,7 +140,8 @@ class FastF1Service:
                 drivers.append({
                     'code': driver['Abbreviation'],
                     'number': int(driver['DriverNumber']),
-                    'full_name': driver['FullName'],
+                    'given_name': driver['FirstName'],
+                    'family_name': driver['LastName'],
                     'team': driver['TeamName'],
                     'team_color': driver.get('TeamColor', '#FFFFFF')
                 })
