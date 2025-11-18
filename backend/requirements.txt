@@ -19,7 +19,7 @@ tensorflow==2.20.0
 joblib==1.3.2
 
 # Database
-supabase==2.3.0
+supabase==2.5.1
 psycopg2-binary==2.9.9
 
 # Utilities
