@@ -89,6 +89,7 @@ Open http://localhost:8000/docs for interactive API documentation.
 ```
 backend/
 ├── main.py                 # FastAPI app with automated startup
+├── manual_sync.py          # Manual data sync script
 ├── config.py               # Configuration management
 ├── requirements.txt        # Python dependencies
 ├── services/
@@ -153,6 +154,16 @@ pytest tests/
 curl -X POST http://localhost:8000/api/v1/predictions/train
 ```
 
+### Manual Data Sync
+
+To manually populate or update the database, run the `manual_sync.py` script:
+
+```bash
+python manual_sync.py
+```
+
+This script will perform the same initial data load or update check that normally runs on server startup. Logs will be saved to `logs/manual_sync.log`.
+
 ## Deployment
 
 ### Docker
@@ -178,6 +189,10 @@ The automated agent will run on first deployment and populate the database.
 Check logs for errors:
 ```bash
 tail -f logs/f1_analytics.log
+```
+Or for the manual script:
+```bash
+tail -f logs/manual_sync.log
 ```
 
 ### FastF1 Cache Issues
