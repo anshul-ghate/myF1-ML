@@ -1,325 +1,152 @@
-/**
- * Backend Data Service
- * Replaces the old mock data service with real API calls
- */
+// Backend data service that uses Supabase instead of Ergast API
+import {
+  fetchDrivers,
+  fetchConstructors,
+  fetchRaces,
+  fetchNextRace,
+  fetchLastRace,
+  fetchRaceResults,
+  fetchDriverStandings,
+  fetchConstructorStandings,
+  fetchPredictions,
+  Driver,
+  Constructor,
+  Race,
+  RaceResult,
+} from './supabaseService';
 
-import { apiClient } from './apiClient';
-
-export interface Driver {
-  id: string;
-  name: string;
-  code: string;
-  permanent_number: number;
-  nationality: string;
-  dob?: string;
-  headshot_url?: string;
+// Transform backend data to match frontend types
+export async function getDriverStandings(year: number = new Date().getFullYear()) {
+  const standings = await fetchDriverStandings(year);
+  
+  return standings.map(standing => ({
+    position: standing.position.toString(),
+    Driver: {
+      driverId: standing.driver.ergast_driver_id,
+      code: standing.driver.code,
+      givenName: standing.driver.given_name,
+      familyName: standing.driver.family_name,
+      dateOfBirth: standing.driver.date_of_birth,
+      nationality: standing.driver.nationality,
+    },
+    Constructor: {
+      constructorId: standing.constructor.ergast_constructor_id,
+      name: standing.constructor.name,
+      nationality: standing.constructor.nationality,
+    },
+    points: standing.points.toString(),
+    wins: standing.wins.toString(),
+  }));
 }
 
-export interface Constructor {
-  id: string;
-  name: string;
-  nationality: string;
-  logo_url?: string;
+export async function getConstructorStandings(year: number = new Date().getFullYear()) {
+  const standings = await fetchConstructorStandings(year);
+  
+  return standings.map(standing => ({
+    position: standing.position.toString(),
+    Constructor: {
+      constructorId: standing.constructor.ergast_constructor_id,
+      name: standing.constructor.name,
+      nationality: standing.constructor.nationality,
+    },
+    points: standing.points.toString(),
+    wins: standing.wins.toString(),
+  }));
 }
 
-export interface Race {
-  id: string;
-  season_year: number;
-  round: number;
-  name: string;
-  date: string;
-  time: string;
-  circuit_id: string;
-  circuits?: {
-    name: string;
-    location: string;
-    country: string;
+export async function getLastRaceResults() {
+  const lastRace = await fetchLastRace();
+  if (!lastRace) return [];
+
+  const results = await fetchRaceResults(lastRace.id);
+  
+  return {
+    raceName: lastRace.name,
+    Circuit: {
+      circuitName: lastRace.circuit?.name || '',
+      Location: {
+        locality: lastRace.circuit?.location || '',
+        country: lastRace.circuit?.country || '',
+      },
+    },
+    date: lastRace.date,
+    Results: results.map(result => ({
+      position: result.position?.toString() || result.position_text,
+      Driver: {
+        driverId: result.driver?.ergast_driver_id || '',
+        code: result.driver?.code || '',
+        givenName: result.driver?.given_name || '',
+        familyName: result.driver?.family_name || '',
+      },
+      Constructor: {
+        constructorId: result.constructor?.ergast_constructor_id || '',
+        name: result.constructor?.name || '',
+      },
+      grid: result.grid?.toString() || '',
+      laps: result.laps?.toString() || '',
+      status: result.status,
+      Time: result.fastest_lap_rank ? { time: 'N/A' } : undefined,
+      FastestLap: result.fastest_lap_rank ? {
+        rank: result.fastest_lap_rank.toString(),
+        Time: { time: 'N/A' },
+      } : undefined,
+    })),
   };
 }
 
-export interface RaceResult {
-  race_id: string;
-  driver_id: string;
-  constructor_id: string;
-  position: number;
-  points: number;
-  status: string;
-  fastest_lap_time?: string;
-  drivers?: Driver;
-  constructors?: Constructor;
+export async function getRaceSchedule(year: number = new Date().getFullYear()) {
+  const races = await fetchRaces(year);
+  
+  return races.map(race => ({
+    round: race.round.toString(),
+    raceName: race.name,
+    Circuit: {
+      circuitId: race.circuit?.ergast_circuit_id || '',
+      circuitName: race.circuit?.name || '',
+      Location: {
+        locality: race.circuit?.location || '',
+        country: race.circuit?.country || '',
+      },
+    },
+    date: race.date,
+    time: race.time || '',
+  }));
 }
 
-export interface Prediction {
-  driver_id: string;
-  driver_name: string;
-  win_probability: number;
-  confidence: number;
+export async function getNextRace() {
+  const nextRace = await fetchNextRace();
+  if (!nextRace) return null;
+
+  return {
+    round: nextRace.round.toString(),
+    raceName: nextRace.name,
+    Circuit: {
+      circuitId: nextRace.circuit?.ergast_circuit_id || '',
+      circuitName: nextRace.circuit?.name || '',
+      Location: {
+        locality: nextRace.circuit?.location || '',
+        country: nextRace.circuit?.country || '',
+      },
+    },
+    date: nextRace.date,
+    time: nextRace.time || '',
+  };
 }
 
-export interface DriverStanding {
-  position: number;
-  driver_id: string;
-  driver_name: string;
-  points: number;
-  wins: number;
-  podiums: number;
+// Get predictions for next race
+export async function getNextRacePredictions() {
+  const nextRace = await fetchNextRace();
+  if (!nextRace) return [];
+
+  const predictions = await fetchPredictions(nextRace.id);
+  
+  return predictions.map(pred => ({
+    position: pred.predicted_position,
+    driver: {
+      code: pred.driver?.code || '',
+      givenName: pred.driver?.given_name || '',
+      familyName: pred.driver?.family_name || '',
+    },
+    confidence: pred.confidence,
+  }));
 }
-
-export interface ConstructorStanding {
-  position: number;
-  constructor_id: string;
-  constructor_name: string;
-  points: number;
-  wins: number;
-}
-
-export interface StrategyResult {
-  mean_time: number;
-  std_dev: number;
-  best_time: number;
-  worst_time: number;
-  median_time: number;
-  percentile_25: number;
-  percentile_75: number;
-}
-
-export interface DashboardData {
-  driver_standings: DriverStanding[];
-  constructor_standings: ConstructorStanding[];
-}
-
-class BackendDataService {
-  /**
-   * Get current season driver standings
-   */
-  async getDriverStandings(season: number = 2024): Promise<DriverStanding[]> {
-    try {
-      const standings = await apiClient.getDriverStandings(season);
-      return standings;
-    } catch (error) {
-      console.error('Error fetching driver standings:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Get current season constructor standings
-   */
-  async getConstructorStandings(season: number = 2024): Promise<ConstructorStanding[]> {
-    try {
-      const standings = await apiClient.getConstructorStandings(season);
-      return standings;
-    } catch (error) {
-      console.error('Error fetching constructor standings:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Get upcoming races
-   */
-  async getUpcomingRaces(): Promise<Race[]> {
-    try {
-      const races = await apiClient.getUpcomingRaces();
-      return races;
-    } catch (error) {
-      console.error('Error fetching upcoming races:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Get race results
-   */
-  async getRaceResults(raceId: string): Promise<RaceResult[]> {
-    try {
-      const results = await apiClient.getRaceResults(raceId);
-      return results;
-    } catch (error) {
-      console.error('Error fetching race results:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Get predictions for a race
-   */
-  async getRacePredictions(raceId: string): Promise<Prediction[]> {
-    try {
-      // Try to get existing predictions
-      let predictions = await apiClient.getPredictions(raceId);
-      
-      // If no predictions exist, generate them
-      if (!predictions || predictions.length === 0) {
-        predictions = await apiClient.generatePredictions(raceId);
-      }
-      
-      return predictions;
-    } catch (error) {
-      console.error('Error fetching predictions:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Simulate a race strategy
-   */
-  async simulateStrategy(
-    strategy: Array<[string, number]>,
-    options?: {
-      n_simulations?: number;
-      total_laps?: number;
-      pit_stop_time?: number;
-    }
-  ): Promise<StrategyResult | null> {
-    try {
-      const response = await apiClient.simulateStrategy(strategy, options);
-      return response.result;
-    } catch (error) {
-      console.error('Error simulating strategy:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Optimize multiple strategies
-   */
-  async optimizeStrategies(
-    strategies: Array<Array<[string, number]>>,
-    options?: {
-      n_simulations?: number;
-      total_laps?: number;
-    }
-  ): Promise<any[]> {
-    try {
-      const response = await apiClient.optimizeStrategies(strategies, options);
-      return response.results;
-    } catch (error) {
-      console.error('Error optimizing strategies:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Get all drivers
-   */
-  async getDrivers(season?: number): Promise<Driver[]> {
-    try {
-      const drivers = await apiClient.getDrivers(season);
-      return drivers;
-    } catch (error) {
-      console.error('Error fetching drivers:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Get driver details
-   */
-  async getDriver(driverId: string): Promise<Driver | null> {
-    try {
-      const driver = await apiClient.getDriver(driverId);
-      return driver;
-    } catch (error) {
-      console.error('Error fetching driver:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Get driver race results
-   */
-  async getDriverResults(driverId: string, season?: number): Promise<RaceResult[]> {
-    try {
-      const results = await apiClient.getDriverResults(driverId, season);
-      return results;
-    } catch (error) {
-      console.error('Error fetching driver results:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Get all constructors
-   */
-  async getConstructors(): Promise<Constructor[]> {
-    try {
-      const constructors = await apiClient.getConstructors();
-      return constructors;
-    } catch (error) {
-      console.error('Error fetching constructors:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Get dashboard data
-   */
-  async getDashboardData(season?: number): Promise<DashboardData | null> {
-    try {
-      const data = await apiClient.getDashboardData(season);
-      return data;
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Get all races for a season
-   */
-  async getRaces(season?: number): Promise<Race[]> {
-    try {
-      const races = await apiClient.getRaces(season);
-      return races;
-    } catch (error) {
-      console.error('Error fetching races:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Get tire compounds
-   */
-  async getTireCompounds() {
-    try {
-      const response = await apiClient.getTireCompounds();
-      return response.compounds;
-    } catch (error) {
-      console.error('Error fetching tire compounds:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Check backend health
-   */
-  async checkHealth(): Promise<boolean> {
-    try {
-      const health = await apiClient.healthCheck();
-      return health.status === 'healthy';
-    } catch (error) {
-      console.error('Backend health check failed:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Train ML model
-   */
-  async trainModel(): Promise<any> {
-    try {
-      const response = await apiClient.trainModel();
-      return response;
-    } catch (error) {
-      console.error('Error training model:', error);
-      throw error;
-    }
-  }
-}
-
-// Export singleton instance
-export const backendDataService = new BackendDataService();
-
-// Export class for testing
-export default BackendDataService;

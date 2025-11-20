@@ -1,46 +1,39 @@
 /**
- * Backend Status Indicator Component
- * Shows connection status to Python backend
+ * Backend Status Indicator
+ * Shows connection status to Python FastAPI backend
  */
-
-import React from 'react';
 import { useBackendHealth } from '@/hooks/useBackendData';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 
 export function BackendStatus() {
-  const { isHealthy, checking } = useBackendHealth();
+  const { data, isLoading, isError } = useBackendHealth();
 
-  if (checking) {
+  if (isLoading) {
     return (
       <Alert className="mb-4">
         <Loader2 className="h-4 w-4 animate-spin" />
-        <AlertDescription>
-          Checking backend connection...
-        </AlertDescription>
+        <AlertDescription>Connecting to backend...</AlertDescription>
       </Alert>
     );
   }
 
-  if (!isHealthy) {
+  if (isError) {
     return (
       <Alert variant="destructive" className="mb-4">
         <XCircle className="h-4 w-4" />
         <AlertDescription>
-          Backend is not responding. Make sure the Python backend is running at{' '}
-          <code className="bg-black/10 px-1 py-0.5 rounded">
-            {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}
-          </code>
+          Backend offline. Please start the Python backend server at http://localhost:8000
         </AlertDescription>
       </Alert>
     );
   }
 
   return (
-    <Alert className="mb-4 border-green-500 bg-green-50">
+    <Alert className="mb-4 border-green-500 bg-green-50 dark:bg-green-950">
       <CheckCircle2 className="h-4 w-4 text-green-600" />
-      <AlertDescription className="text-green-800">
-        Connected to backend successfully
+      <AlertDescription className="text-green-800 dark:text-green-200">
+        Connected to backend v{data?.version}
       </AlertDescription>
     </Alert>
   );
